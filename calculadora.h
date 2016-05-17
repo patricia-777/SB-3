@@ -17,7 +17,7 @@ no* alocaNo();
 void mostraPilha(no *);
 void liberaPilha(no *);
 void push(no *, int8_t *);
-int8_t* pop(no *);
+no* pop(no *);
 
 
 //funcoes para notacao pos-fixa
@@ -25,3 +25,4 @@ int prioridade(char , char );
 void posFixada(int8_t * , no *, no *);
 void zerandoVetor(int8_t *);
 void serparandoElementosExpressao(char *, no *, no *);
+char* gerencia(no *);

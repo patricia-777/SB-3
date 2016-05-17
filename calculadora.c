@@ -6,27 +6,35 @@
 #include <stdlib.h>
 #include <string.h>
 #include "calculadora.h"
+#include "soma.h"
 
 int tam;
 
 int main(int argc, char const *argv[])
 {
 	char expressao[200];
+	char *resultado;
 
+	printf("###########################################\n\n");
+
+	printf("BEM VIND@ A NOSSA CALCULADORA ORÁCULO!!!\n\n");
+	
 	//pegando expressao do usuário
 	if (argc == 1)
 	{
-		printf("Escreva a expressao: \n");
+		printf("Escreva a expressao que deseja saber o resultado: ");
 		scanf("%s", expressao);
 
-		printf("%s\n", expressao);
+		printf("\nVocê pediu o resultado para:  %s\n", expressao);
 	}
 	else
 	{
-		printf("%s\n", argv[1]);
+		// printf("%s\n", argv[1]);
+		strcpy(expressao, argv[1]);
+
+		printf("Você pediu o resultado para:  %s\n", argv[1]);
 	}
 	
-
 	//inicializando duas pilhas, um auxiliar (pilha) e final com a expressao pos-fixada (pilhaPOSFIXA)
 	no *pilha = (no*) malloc(sizeof(no));
 	no *pilhaPOSFIXA = (no*) malloc(sizeof(no));
@@ -37,6 +45,16 @@ int main(int argc, char const *argv[])
 	//pegando cada elemento da expressao e trabalhando colocando na forma posfixada, dentro da pilha
 	serparandoElementosExpressao(expressao, pilha, pilhaPOSFIXA);
 
+	//mostrando a pilha pos fixada
+	// mostraPilha(pilhaPOSFIXA);
+
+	resultado = gerencia(pilhaPOSFIXA);
+
+	printf("E nós te revelamos:  %s\n\n", resultado);
+
+	printf("VOLTE SEMPRE!!\n");
+
+	printf("###########################################\n\n");
 
 	//liberando pilha final
 	liberaPilha(pilhaPOSFIXA);
@@ -44,6 +62,46 @@ int main(int argc, char const *argv[])
 	return 0;
 
 }
+
+char* gerencia(no *pilha)
+{
+	no *aux1, *aux2;
+
+	if (pilha != NULL)
+	{
+		aux1 = pop(pilha);
+
+		if (!strcmp((char *)aux1->numero, "+"))
+		{
+			return soma(gerencia(pilha), gerencia(pilha));
+		}
+		// else if (!strcmp((char *)aux1->numero, "-"))
+		// {
+		// 	aux2 = pop(pilha);
+		// 	return subtracao(gerencia(aux2), gerencia(pilha));
+		// }
+		// else if (!strcmp((char *)aux1->numero, "*"))
+		// {
+		// 	aux2 = pop(pilha);
+		// 	return  multiplicacao(gerencia(aux2), gerencia(pilha));
+		// }
+		// else if (!strcmp((char *)aux1->numero, "/"))
+		// {
+		// 	aux2 = pop(pilha);
+		// 	 return divisao(gerencia(aux2), gerencia(pilha));
+		// }
+		else 
+		{
+			
+			return (char *)aux1->numero;
+		}
+
+	}
+	else{
+		return NULL;
+	}
+}
+
 
 void serparandoElementosExpressao(char expr[], no *pilha, no *pilhaFinal)
 {
@@ -90,9 +148,6 @@ void serparandoElementosExpressao(char expr[], no *pilha, no *pilhaFinal)
 	//finalizando analise da expressao
 	posFixada(final, pilha, pilhaFinal);
 
-	//mostrando a pilha pos fixada
-	mostraPilha(pilhaFinal);
-
 	//liberando pilha
 	liberaPilha(pilha);
 }
@@ -115,52 +170,43 @@ void zerandoVetor(int8_t vetor[])
 void posFixada(int8_t expr[], no *pilha, no *pilhaFinal)
 {
 	int i = 0;
-	int8_t *caracterPilha;
+	no *caracterPilha;
  
 
     if(expr[0] >= '0' && expr[0] <= '9')
     {
-    	// printf("é numero\n");
     	push(pilhaFinal, expr);
-    	// printf("%s", expr);
     }
     else if(expr[0] == '(')
     {
-    	// printf("é parenteses\n");
     	push(pilha, expr);
     }
     else if(expr[0] == ')' || expr[0] == '\0'){
-    	
-    	// printf("final\n");
 
     	do{
         	caracterPilha = pop(pilha);
         	
-        	if(caracterPilha[0] != '(')
+        	if(caracterPilha->numero[0] != '(')
         	{
-        		// printf("abre parensetes\n");
-        		push(pilhaFinal, caracterPilha);
-          		// printf("%s", caracterPilha);
+        		push(pilhaFinal, caracterPilha->numero);
         	}
 
-      	}while(caracterPilha[0] != '(');
+      	}while(caracterPilha->numero[0] != '(');
     }
     else if(expr[0] == '+' || expr[0] == '-' || expr[0] == '*' || expr[0] == '/' || expr[0] == '^' )
     {
-    	// printf("operacao\n");
       	while(1)
       	{
     	    caracterPilha = pop(pilha);
 
-        	if(prioridade(expr[0],caracterPilha[0]))
+        	if(prioridade(expr[0],caracterPilha->numero[0]))
         	{
-          		push(pilha, caracterPilha);
+          		push(pilha, caracterPilha->numero);
           		push(pilha, expr);
           		break;
         	}
         	else{
-        		push(pilhaFinal, caracterPilha);
-          		// printf("%s", caracterPilha);
+        		push(pilhaFinal, caracterPilha->numero);
         	}
       	}
     }
@@ -311,7 +357,7 @@ void push(no *pilha, int8_t numero[])
 	tam++;
 }
 
-int8_t* pop(no *pilha)
+no* pop(no *pilha)
 {
 	no *ultimo = pilha->prox, *penultimo = pilha;
 
@@ -330,6 +376,6 @@ int8_t* pop(no *pilha)
 		penultimo->prox = NULL;
 		tam--;
 
-		return ultimo->numero;
+		return ultimo;
 	}
 }
