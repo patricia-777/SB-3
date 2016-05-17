@@ -1,4 +1,4 @@
-//Codificação calculadora numeros de 256bits
+//Codificação calculadora numeros de 256bits (IMPLEMENTACAO DO GITHUB)
 //Grupo 6
 
 #include <stdio.h>
@@ -13,6 +13,7 @@ int main(int argc, char const *argv[])
 {
 	char expressao[200];
 
+	//pegando expressao do usuário
 	if (argc == 1)
 	{
 		printf("Escreva a expressao: \n");
@@ -26,100 +27,188 @@ int main(int argc, char const *argv[])
 	}
 	
 
-
+	//inicializando duas pilhas, um auxiliar (pilha) e final com a expressao pos-fixada (pilhaPOSFIXA)
 	no *pilha = (no*) malloc(sizeof(no));
+	no *pilhaPOSFIXA = (no*) malloc(sizeof(no));
 
 	inicializaPilha(pilha);
+	inicializaPilha(pilhaPOSFIXA);
 
-	posFixa(expressao, PILHA);
+	//pegando cada elemento da expressao e trabalhando colocando na forma posfixada, dentro da pilha
+	serparandoElementosExpressao(expressao, pilha, pilhaPOSFIXA);
+
+
+	//liberando pilha final
+	liberaPilha(pilhaPOSFIXA);
 
 	return 0;
 
 }
 
+void serparandoElementosExpressao(char expr[], no *pilha, no *pilhaFinal)
+{
+	int8_t elementos[81];
+	int8_t caracter;
+	int indiceExp, indicePalavra = 0;
+	int8_t final[81];
+
+	//marcando o final da expressao
+	zerandoVetor(final);
+	final[0] = '\0';
+
+	//percorrendo a expressao agrupando os elementos
+	for (indiceExp = 0; indiceExp < strlen(expr); indiceExp++)
+	{
+		caracter = expr[indiceExp];
+
+		//agrupando cada algarismo ate formar o numero
+		if (caracter >= '0' && caracter<= '9')
+		{
+			elementos[indicePalavra] = (int8_t)caracter;
+			indicePalavra++;
+
+			//sei que o numero acabou quando o proximo elemento é um caracter de operacao
+			if (!(expr[indiceExp+1] >= '0' && expr[indiceExp+1]<= '9'))
+			{
+				// printf("proximo operacao\n");
+				elementos[indicePalavra] = '\0';
+				indicePalavra=0;
+				posFixada(elementos, pilha, pilhaFinal);
+				zerandoVetor(elementos);
+			}
+		}
+		//pegando o caracter de operacao
+		else
+		{
+			elementos[indicePalavra] = (int8_t)caracter;
+			elementos[indicePalavra+1] = '\0';
+			posFixada(elementos, pilha, pilhaFinal);
+			zerandoVetor(elementos);
+		}
+	}
+
+	//finalizando analise da expressao
+	posFixada(final, pilha, pilhaFinal);
+
+	//mostrando a pilha pos fixada
+	mostraPilha(pilhaFinal);
+
+	//liberando pilha
+	liberaPilha(pilha);
+}
+
+//zerando o vetor, inicializando ele (funcao auxiliar)
+void zerandoVetor(int8_t vetor[])
+{
+	int i;
+
+	for (i = 0; i < strlen((char *) vetor); i++)
+	{
+		vetor[i]=0;
+	}
+
+	vetor[i-1] = '\0';
+}
 
 
-void posFixa(char expr[], no *p)
+//funcao que colcoa na ordem pos fixada
+void posFixada(int8_t expr[], no *pilha, no *pilhaFinal)
 {
 	int i = 0;
-	char c,t;
+	int8_t *caracterPilha;
  
-	push(p, '(');
- 
-	do{
-		c = expr[i];
-		i++;
 
-	    if(c >= 'a' && c <= 'z'){
-	      printf("%c", c);
-	    }
-	    else if(c == '('){
-	    	push(p, '(');
-	    }
-	    else if(c == ')' || c == '\0'){
-	    	
-	    	do{
-	        	t = pop(p);
-	        	
-	        	if(t != '(')
-	          		printf("%c", t);
-	      	}while(t != '(');
-	    }
-	    else if(c == '+' || c == '-' || 
-	            c == '*' || c == '/' ||
-	            c == '^' )
-	    {
-	      	while(1){
-	    	    t = pop(p);
-	        	if(Prioridade(c,t)){
-	          		push(p, t);
-	          		push(p, c);
-	          		break;
-	        	}
-	        	else{
-	          		printf("%c", t);
-	        	}
-	      	}
-	    }
-  	}while(c != '\0');
-  	
-  	printf("\n");
-  	
-  	libera(p);
+    if(expr[0] >= '0' && expr[0] <= '9')
+    {
+    	// printf("é numero\n");
+    	push(pilhaFinal, expr);
+    	// printf("%s", expr);
+    }
+    else if(expr[0] == '(')
+    {
+    	// printf("é parenteses\n");
+    	push(pilha, expr);
+    }
+    else if(expr[0] == ')' || expr[0] == '\0'){
+    	
+    	// printf("final\n");
 
+    	do{
+        	caracterPilha = pop(pilha);
+        	
+        	if(caracterPilha[0] != '(')
+        	{
+        		// printf("abre parensetes\n");
+        		push(pilhaFinal, caracterPilha);
+          		// printf("%s", caracterPilha);
+        	}
+
+      	}while(caracterPilha[0] != '(');
+    }
+    else if(expr[0] == '+' || expr[0] == '-' || expr[0] == '*' || expr[0] == '/' || expr[0] == '^' )
+    {
+    	// printf("operacao\n");
+      	while(1)
+      	{
+    	    caracterPilha = pop(pilha);
+
+        	if(prioridade(expr[0],caracterPilha[0]))
+        	{
+          		push(pilha, caracterPilha);
+          		push(pilha, expr);
+          		break;
+        	}
+        	else{
+        		push(pilhaFinal, caracterPilha);
+          		// printf("%s", caracterPilha);
+        	}
+      	}
+    }
 }
 
-int Prioridade(char c, char t){
-  int pc,pt;
+//funcao que decide a prioridade dos caracteres (auxiliar)
+int prioridade(char caracter, char caracterPilha){
+
+	int prioridadeCaracter,prioridadePilha;
  
-  if(c == '^')
-    pc = 4;
-  else if(c == '*' || c == '/')
-    pc = 2;
-  else if(c == '+' || c == '-')
-    pc = 1;
-  else if(c == '(')
-    pc = 4;
- 
-  if(t == '^')
-    pt = 3;
-  else if(t == '*' || t == '/')
-    pt = 2;
-  else if(t == '+' || t == '-')
-    pt = 1;
-  else if(t == '(')
-    pt = 0;
- 
-  return (pc > pt);
+ 	if(caracter == '*' || caracter == '/'){
+		prioridadeCaracter = 2;
+	}
+	else if(caracter == '+' || caracter == '-'){
+		prioridadeCaracter = 1;
+	}
+	else if(caracter == '('){
+		prioridadeCaracter = 4;
+	}
+
+
+	if(caracterPilha == '*' || caracterPilha == '/'){
+		prioridadePilha = 2;
+	}
+	else if(caracterPilha == '+' || caracterPilha == '-'){
+		prioridadePilha = 1;
+	}
+	else if(caracterPilha == '('){
+		prioridadePilha = 0;
+	}
+
+	return (prioridadeCaracter > prioridadePilha);
 }
 
 
-//funcoes para gerenciamento de pilha
+//funcoes para gerenciamento de pilha que guarda cada elemento do tipo: int8_t vetor[81]
 
 void inicializaPilha(no *pilha)
 {
+	int8_t parenteses[81];
+	zerandoVetor(parenteses);
+	parenteses[0] = '(';
+	parenteses[1] = '\0';
+
 	pilha->prox = NULL;
 	tam=0;
+
+	push(pilha, parenteses);
 }
 
 int verificaPilhaVazia(no *pilha)
@@ -134,44 +223,41 @@ int verificaPilhaVazia(no *pilha)
 	}
 }
 
-no* alocaNo(char numero)
+no* alocaNo()
 {
 	no *novo=(no *) malloc(sizeof(no));
 	
 	if(!novo)
 	{
 		printf("Nao alocou\n");
+		return NULL;
 	}else{
-		novo->numero = numero;
-		// strcpy(novo->numero, numero); 
-		// printf("%c\n", novo->numero);
- 	}
- 	
- 	return novo;
+ 		return novo;
+ 	}	
 }
 
 
 void mostraPilha(no *pilha)
 {
-	int count;
+	no *aux;
 
-	if(vazia(pilha))
+	if(verificaPilhaVazia(pilha))
 	{
 		printf("pilha vazia!\n\n");
 	}
 	else
 	{
-		no *tmp;
-		
-		tmp = pilha->prox;
+		aux = pilha->prox;
 		
 		printf("Pilha:");
 		
-		while( tmp != NULL)
+		while( aux != NULL)
 		{
-			printf("%c", tmp->numero);
-			tmp = tmp->prox;
+			printf("%s ", aux->numero);
+			aux = aux->prox;
 		}
+
+		printf("\n");
 	}
 
 }
@@ -179,7 +265,7 @@ void mostraPilha(no *pilha)
 
 void liberaPilha(no *pilha)
 {
-	if(!vazia(pilha))
+	if(!verificaPilhaVazia(pilha))
 	{
 		no *proxNo, *atual;
 
@@ -191,21 +277,23 @@ void liberaPilha(no *pilha)
 
 			free(atual);
 			
-			atual = proxNode;
+			atual = proxNo	;
 		}
 	}
 }
 
 
-void push(no *pilha, char numero)
+void push(no *pilha, int8_t numero[])
 {
-	no *novo=aloca(numero);
+	no *novo;
 
-	// strcpy(novo->numero, numero);
-	novo->numero = numero;
+	novo = alocaNo();
+
+	strcpy((char *)novo->numero ,(char *)numero);
+	// novo->numero = numero;
 	novo->prox = NULL;
 
-	if(vazia(pilha))
+	if(verificaPilhaVazia(pilha))
 	{
 		pilha->prox=novo;
 	}
@@ -223,16 +311,16 @@ void push(no *pilha, char numero)
 	tam++;
 }
 
-char pop(no *pilha)
+int8_t* pop(no *pilha)
 {
+	no *ultimo = pilha->prox, *penultimo = pilha;
+
 	if(pilha->prox == NULL)
 	{
 		printf("PILHA ja vazia\n\n");
 		return NULL;
 	}else
 	{
-		no *ultimo = pilha->prox, *penultimo = pilha;
-
 		while(ultimo->prox != NULL)
 		{
 			penultimo = ultimo;
