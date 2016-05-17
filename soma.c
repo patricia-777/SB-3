@@ -11,12 +11,25 @@
 #include <stdlib.h>
 #include <string.h>
 
-void soma()
+char * soma(char * elemento1, char * elemento2);
+/*
+int main()
+{
+    char elemento1[30];
+    char elemento2[30];
+    
+    printf("Escreva o elemento 1: ");
+    scanf("%s", elemento1);
+    printf("Escreva o elemento 2: ");
+    scanf("%s", elemento2);
+    
+    soma(elemento1,elemento2);
+    return 0;
+}
+*/
+char * soma(char * elemento1, char * elemento2)
 {
     /* Os dois operandos serão convertidos em long e salvos em um array de long para poder realizar-se a operação de soma. */
-    char * elemento1, * elemento2;
-    elemento1 = "1";
-    elemento2 = "1234567";
     
     /* O número de elementos de cada entrada é importate para saber o número de posições que terão os arrays. */
     int tamanho_elemento1, tamanho_elemento2, tamanho;
@@ -37,166 +50,130 @@ void soma()
     }
     
     /* Essa parte do código cria o array para o primeiro elemento. */
-    long resto1 = tamanho_elemento1%3;
-    switch(resto1)
+    long resto1 = tamanho_elemento1%9;
+    if(resto1 == 0)
     {
-        case 0:
-            for(int i = (tamanho_elemento1/3); i >= 0; i--)
+        for(int i = (tamanho_elemento1/9); i >= 0; i--)
+        {
+            long temp = 0;
+            for(int j = 8; j >= 0; j--)
             {
-                long temp1 = 0;
-                for(int j = 2; j >= 0; j--)
+                char t;
+                if(i == 0)
                 {
-                    char t1;
-                    if(i == 0)
-                    {
-                        temp1 = 0;
-                        break;
-                    }
-                    else t1 = elemento1[i*3 - j - 1];
-                    temp1 = temp1 * 10 + (t1 - 48);
+                    temp = 0;
+                    break;
                 }
-                elem1[tamanho_elemento1/3 - i] = temp1;
+                else t = elemento1[i*9 - j - 1];
+                temp = temp * 10 + (t - 48);
             }
-            break;
-        case 1:
-            for(int i = (tamanho_elemento1/3); i >= 0; i--)
-            {
-                long temp1 = 0;
-                for(int j = 2; j >= 0; j--)
-                {
-                    char t1;
-                    if(i == 0)
-                    {
-                        t1 = elemento1[0];
-                        temp1 = t1 - 48;
-                        break;
-                    }
-                    else t1 = elemento1[i*3 - j];
-                    temp1 = temp1 * 10 + (t1 - 48);
-                }
-                elem1[tamanho_elemento1/3 - i] = temp1;
-            }
-            break;
-        case 2:
-            for(int i = (tamanho_elemento1/3); i >= 0; i--)
-            {
-                long temp1 = 0;
-                for(int j = 2; j >= 0; j--)
-                {
-                    char t1;
-                    if(i == 0)
-                    {
-                        t1 = elemento1[0];
-                        temp1 = t1 - 48;
-                        t1 = elemento1[1];
-                        temp1 = 10*temp1 + (t1-48);
-                        break;
-                    }
-                    else t1 = elemento1[i*3 - j + 1];
-                    temp1 = temp1 * 10 + (t1 - 48);
-                }
-                elem1[tamanho_elemento1/3 - i] = temp1;
-            }
-            break;
+            elem1[tamanho_elemento1/9 - i] = temp;
+        }
     }
-    /* Array para o elemento 2. */
-    long resto2 = tamanho_elemento2%3;
-    switch(resto2)
+    else
     {
-        case 0:
-            for(int i = (tamanho_elemento2/3); i >= 0; i--)
+        for(int i = (tamanho_elemento1/9); i >= 0; i--)
+        {
+            long temp = 0;
+            for(int j = 8; j >= 0; j--)
             {
-                long temp2 = 0;
-                for(int j = 2; j >= 0; j--)
+                char t;
+                if(i == 0)
                 {
-                    char t2;
-                    if(i == 0)
+                    for(int k = 0; k < resto1; k++)
                     {
-                        temp2 = 0;
-                        break;
+                        t = elemento1[k];
+                        temp = temp*10 + (t-48);
                     }
-                    else t2 = elemento2[i*3 - j - 1];
-                    temp2 = temp2 * 10 + (t2 - 48);
+                    break;
                 }
-                elem2[tamanho_elemento2/3 - i] = temp2;
+                else t = elemento1[i*9 - j + resto1 - 1];
+                temp = temp * 10 + (t - 48);
             }
-            break;
-        case 1:
-            for(int i = (tamanho_elemento2/3); i >= 0; i--)
-            {
-                long temp2 = 0;
-                for(int j = 2; j >= 0; j--)
-                {
-                    char t2;
-                    if(i == 0)
-                    {
-                        t2 = elemento2[0];
-                        temp2 = t2 - 48;
-                        break;
-                    }
-                    else t2 = elemento2[i*3 - j];
-                    temp2 = temp2 * 10 + (t2 - 48);
-                }
-                elem2[tamanho_elemento2/3 - i] = temp2;
-            }
-            break;
-        case 2:
-            for(int i = (tamanho_elemento2/3); i >= 0; i--)
-            {
-                long temp2 = 0;
-                for(int j = 2; j >= 0; j--)
-                {
-                    char t2;
-                    if(i == 0)
-                    {
-                        t2 = elemento2[0];
-                        temp2 = t2 - 48;
-                        t2 = elemento2[1];
-                        temp2 = 10 * temp2 + (t2-48);
-                        break;
-                    }
-                    else t2 = elemento2[i*3 - j + 1];
-                    temp2 = temp2 * 10 + (t2 - 48);
-                }
-                elem2[tamanho_elemento2/3 - i] = temp2;
-            }
-            break;
+            elem1[tamanho_elemento1/9 - i] = temp;
+        }
     }
     
-    for(int i = 0; i < tamanho/3+1; i++)
+    /* Array para o elemento 2. */
+    long resto2 = tamanho_elemento2%9;
+    if(resto2 == 0)
     {
-        printf("elem1: %ld\telem2: %ld\n",elem1[i],elem2[i]);
+        for(int i = (tamanho_elemento2/9); i >= 0; i--)
+        {
+            long temp = 0;
+            for(int j = 8; j >= 0; j--)
+            {
+                char t;
+                if(i == 0)
+                {
+                    temp = 0;
+                    break;
+                }
+                else t = elemento2[i*9 - j - 1];
+                temp = temp * 10 + (t - 48);
+            }
+            elem2[tamanho_elemento2/9 - i] = temp;
+        }
     }
+    else
+    {
+        for(int i = (tamanho_elemento2/9); i >= 0; i--)
+        {
+            long temp = 0;
+            for(int j = 8; j >= 0; j--)
+            {
+                char t;
+                if(i == 0)
+                {
+                    for(int k = 0; k < resto2; k++)
+                    {
+                        t = elemento2[k];
+                        temp = temp*10 + (t-48);
+                    }
+                    break;
+                }
+                else t = elemento2[i*9 - j + resto2 - 1];
+                temp = temp * 10 + (t - 48);
+            }
+            elem2[tamanho_elemento2/9 - i] = temp;
+        }
+    }
+    /*
+     for(int i = 0; i < tamanho/9+1; i++)
+     {
+     printf("elem1: %ld\telem2: %ld\n",elem1[i],elem2[i]);
+     }
+     */
     /* Para somar, soma-se elemento a elemento dos arrays com as entradas convertidas em long. */
     long carry = 0;
     long * resultado = malloc((tamanho)*sizeof(long));
-    for(int i = 0; i < tamanho/3+1; i++)//é necessário saber se há carry da soma de cada
+    for(int i = 0; i < tamanho/9+1; i++)//é necessário saber se há carry da soma de cada
     {
         long temp = elem1[i] + elem2[i] + carry;
         /* É necessário levar em consideração o carry out da soma. */
-        if((temp/1000)>0)
+        if((temp/1000000000)>0)
         {
             carry = 1;
-            resultado[i] = temp-1000;
+            resultado[i] = temp-1000000000;
         }
         else
         {
             carry = 0;
             resultado[i] = temp;
         }
-        printf("resultado: %ld\n", resultado[i]);
+        //printf("resultado: %ld\n", resultado[i]);
     }
     
     char * retorno = malloc(32);
     sprintf(retorno,"%ld",carry);
-    printf("retorno: %s\n", retorno);
-    for( int i = 2; i >= 0; i--)
+    for( int i = tamanho/9; i >= 0; i--)
     {
-        char* temp = malloc(4);
-        sprintf(temp,"%03ld",resultado[i]);
+        char* temp = malloc(10);
+        sprintf(temp,"%09ld",resultado[i]);
         strcat(retorno,temp);
     }
     
     printf("retorno: %s\n", retorno);
+    return retorno;
     
 }
