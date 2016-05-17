@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "calculadora.h"
+#include "Soma.c"
 
 int tam;
 
